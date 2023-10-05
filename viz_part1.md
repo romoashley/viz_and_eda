@@ -98,3 +98,107 @@ ggp_nyc_weather
 ![](viz_part1_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->
 
 ## Fancy plots
+
+``` r
+#geom_smooth() makes a smooth 
+ggplot(weather_df, aes (x = tmin, y = tmax, color = name)) +
+  geom_point() +
+  geom_smooth()
+```
+
+    ## `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
+
+    ## Warning: Removed 17 rows containing non-finite values (`stat_smooth()`).
+
+    ## Warning: Removed 17 rows containing missing values (`geom_point()`).
+
+![](viz_part1_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+``` r
+# move aes to inside geom_point() so only the points are assigned to color
+# inside geom_point, you can use alpha shading. ex: alpha = 0.3 to make the points 70% opaque or 30% solid 
+ggplot(weather_df, aes (x = tmin, y = tmax)) +
+  geom_point(aes(color = name), alpha = 0.3)+
+  geom_smooth()
+```
+
+    ## `geom_smooth()` using method = 'gam' and formula = 'y ~ s(x, bs = "cs")'
+
+    ## Warning: Removed 17 rows containing non-finite values (`stat_smooth()`).
+    ## Removed 17 rows containing missing values (`geom_point()`).
+
+![](viz_part1_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
+
+``` r
+# se = FALSE gets rid of SE 
+ggplot(weather_df, aes (x = tmin, y = tmax)) +
+  geom_smooth(se = FALSE)
+```
+
+    ## `geom_smooth()` using method = 'gam' and formula = 'y ~ s(x, bs = "cs")'
+
+    ## Warning: Removed 17 rows containing non-finite values (`stat_smooth()`).
+
+![](viz_part1_files/figure-gfm/unnamed-chunk-5-3.png)<!-- -->
+
+Plot with facets
+
+``` r
+# "." means put everything on this row and then " ~ name" and then have separate columns according to the name variable or whichever variable you chose
+
+ggplot(weather_df, aes(x=tmin, y = tmax, color = name)) +
+  geom_point(alpha = 0.3) +
+  geom_smooth() +
+  facet_grid(. ~ name)
+```
+
+    ## `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
+
+    ## Warning: Removed 17 rows containing non-finite values (`stat_smooth()`).
+
+    ## Warning: Removed 17 rows containing missing values (`geom_point()`).
+
+![](viz_part1_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+Let’s try a different plot. temps are boring
+
+``` r
+ggplot(weather_df, aes(x = date, y = tmax, color = name)) +
+  geom_point(aes(size = prcp), alpha = 0.3) +
+  geom_smooth() +
+  facet_grid (. ~ name)
+```
+
+    ## `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
+
+    ## Warning: Removed 17 rows containing non-finite values (`stat_smooth()`).
+
+    ## Warning: Removed 19 rows containing missing values (`geom_point()`).
+
+![](viz_part1_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+Try assigning a specific color
+
+``` r
+weather_df |> 
+  filter(name == "CentralPark_NY") |> 
+  ggplot(aes(x = date, y = tmax)) +
+  geom_point(color = "blue")
+```
+
+![](viz_part1_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+``` r
+# you should rarely assign colors; let R assign them for you
+
+#if there are 2 data example
+# also, you can adjust the size of the dots within geom_point(size = 0.5)
+weather_df |> 
+  filter(name != "CentralPark_NY") |> 
+  ggplot(aes(x = date, y = tmax, color = name)) +
+  geom_point(alpha = 0.7, size = 0.5)
+```
+
+    ## Warning: Removed 17 rows containing missing values (`geom_point()`).
+
+![](viz_part1_files/figure-gfm/unnamed-chunk-8-2.png)<!-- -->

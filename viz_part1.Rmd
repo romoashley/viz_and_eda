@@ -62,7 +62,63 @@ ggp_nyc_weather
 
 ## Fancy plots
 
+```{r}
+#geom_smooth() makes a smooth 
+ggplot(weather_df, aes (x = tmin, y = tmax, color = name)) +
+  geom_point() +
+  geom_smooth()
 
+# move aes to inside geom_point() so only the points are assigned to color
+# inside geom_point, you can use alpha shading. ex: alpha = 0.3 to make the points 70% opaque or 30% solid 
+ggplot(weather_df, aes (x = tmin, y = tmax)) +
+  geom_point(aes(color = name), alpha = 0.3)+
+  geom_smooth()
+
+# se = FALSE gets rid of SE 
+ggplot(weather_df, aes (x = tmin, y = tmax)) +
+  geom_smooth(se = FALSE)
+
+```
+
+Plot with facets
+
+```{r}
+# "." means put everything on this row and then " ~ name" and then have separate columns according to the name variable or whichever variable you chose
+
+ggplot(weather_df, aes(x=tmin, y = tmax, color = name)) +
+  geom_point(alpha = 0.3) +
+  geom_smooth() +
+  facet_grid(. ~ name)
+```
+
+
+Let's try a different plot. temps are boring
+
+```{r}
+ggplot(weather_df, aes(x = date, y = tmax, color = name)) +
+  geom_point(aes(size = prcp), alpha = 0.3) +
+  geom_smooth() +
+  facet_grid (. ~ name)
+```
+
+Try assigning a specific color
+
+```{r}
+weather_df |> 
+  filter(name == "CentralPark_NY") |> 
+  ggplot(aes(x = date, y = tmax)) +
+  geom_point(color = "blue")
+
+# you should rarely assign colors; let R assign them for you
+
+#if there are 2 data example
+# also, you can adjust the size of the dots within geom_point(size = 0.5)
+weather_df |> 
+  filter(name != "CentralPark_NY") |> 
+  ggplot(aes(x = date, y = tmax, color = name)) +
+  geom_point(alpha = 0.7, size = 0.5)
+
+```
 
 
 
