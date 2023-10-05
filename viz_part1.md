@@ -202,3 +202,129 @@ weather_df |>
     ## Warning: Removed 17 rows containing missing values (`geom_point()`).
 
 ![](viz_part1_files/figure-gfm/unnamed-chunk-8-2.png)<!-- -->
+
+hex plot
+
+``` r
+# to make the dots easier to read --> use geom_hex() which nakes a density plot (kind of like a heat map)
+
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_hex()
+```
+
+    ## Warning: Removed 17 rows containing non-finite values (`stat_binhex()`).
+
+![](viz_part1_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+line plot
+
+``` r
+weather_df |> 
+  filter(name == "Molokai_HI") |> 
+  ggplot(aes(x  = date, y = tmax)) +
+  geom_line()
+```
+
+![](viz_part1_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+``` r
+# you can also use geom_line() and geom_point() together
+
+weather_df |> 
+  filter(name == "Molokai_HI") |> 
+  ggplot(aes(x  = date, y = tmax)) +
+  geom_line(alpha = 0.5) + 
+  geom_point(size = 0.5)
+```
+
+    ## Warning: Removed 1 rows containing missing values (`geom_point()`).
+
+![](viz_part1_files/figure-gfm/unnamed-chunk-10-2.png)<!-- -->
+
+``` r
+# line plots are particularly helpful if you are using a longitudianl dataset (ex: if you observations on the same people across different visits)
+```
+
+## univariate plotting
+
+Histogram
+
+``` r
+ggplot(weather_df, aes(x = tmax)) +
+  geom_histogram()
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+    ## Warning: Removed 17 rows containing non-finite values (`stat_bin()`).
+
+![](viz_part1_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+``` r
+# to fil the histogram, you can use "fill = variable". ex: fill = name
+# you can also make the bars avoid each other by using "position = dodge" within geom_histogram
+
+ggplot(weather_df, aes(x = tmax, fill = name)) +
+  geom_histogram(position = "dodge")
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+    ## Warning: Removed 17 rows containing non-finite values (`stat_bin()`).
+
+![](viz_part1_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
+
+Let’s use a density plot
+
+``` r
+# desnity plot allows you see the data better especially when you use "alpha = #.#" within geom_density()
+# you can also change the smoothness by using "adjust = #"
+ggplot(weather_df, aes(x = tmax, fill = name)) +
+  geom_density(alpha = 0.3, adjust = 2)
+```
+
+    ## Warning: Removed 17 rows containing non-finite values (`stat_density()`).
+
+![](viz_part1_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+Using boxplots
+
+``` r
+ggplot(weather_df, aes(y = tmax, x = name)) +
+  geom_boxplot()
+```
+
+    ## Warning: Removed 17 rows containing non-finite values (`stat_boxplot()`).
+
+![](viz_part1_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+violin plots?
+
+``` r
+ggplot(weather_df, aes(y = tmax, x = name)) +
+  geom_violin()
+```
+
+    ## Warning: Removed 17 rows containing non-finite values (`stat_ydensity()`).
+
+![](viz_part1_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+``` r
+# violin plots you take the density plot and turn it vertically and then mirror it
+```
+
+ridge plot
+
+``` r
+# ridge plots are similar to violin plots but it stackes the densities vertically
+ggplot(weather_df, aes(x = tmax, y = name)) +
+  geom_density_ridges()
+```
+
+    ## Picking joint bandwidth of 1.54
+
+    ## Warning: Removed 17 rows containing non-finite values
+    ## (`stat_density_ridges()`).
+
+![](viz_part1_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
