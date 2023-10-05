@@ -8,6 +8,13 @@ output: github_document
 ```{r}
 library(tidyverse)
 library(ggridges)
+
+# setting the width and height of the plots
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
 ```
 
 
@@ -203,6 +210,23 @@ ggplot(weather_df, aes(x = tmax, y = name)) +
 ```
 
 
+## saving and embedding plots
 
+```{r}
+
+ggp_weather =
+  weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_point()
+
+ggsave("results/gg_weather.pdf", ggp_weather)
+
+```
+
+
+Changing the width and height of the graphs
+```{r, fig.width = 6, fig.height= 0.6}
+ggp_weather
+```
 
 
