@@ -1,0 +1,128 @@
+---
+title: "Viz part 2"
+author: "ASHLEY ROMO"
+date: "2023-10-05"
+output: github_document
+---
+
+```{r}
+library(tidyverse)
+
+# setting the width and height of the plots
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+```
+
+
+```{r}
+weather_df = 
+  rnoaa::meteo_pull_monitors(
+    c("USW00094728", "USW00022534", "USS0023B17S"),
+    var = c("PRCP", "TMIN", "TMAX"), 
+    date_min = "2021-01-01",
+    date_max = "2022-12-31") |>
+  mutate(
+    name = recode(
+      id, 
+      USW00094728 = "CentralPark_NY", 
+      USW00022534 = "Molokai_HI",
+      USS0023B17S = "Waterhole_WA"),
+    tmin = tmin / 10,
+    tmax = tmax / 10) |>
+  select(name, id, everything())
+```
+
+## sample plot from last time
+
+```{r}
+# to change labels, use "labs()" function. This changes the x and y axis as well as the name of the legend.
+
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax, color = name)) +
+  geom_point(alpha = 0.5) +
+  labs(
+    title = "Temperature plot",
+    x = "Min daily temp (Degree C",
+    y = "Max daily temp",
+    color = "Location",
+    caption = "Max vs. min dailyt temp in three locations; data from moaa"
+  )
+```
+
+#Scales
+
+```{r}
+# breaks allos you to specific when you want the breaks
+# you can also transform the y variable by using "trans = ..."
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax, color = name)) +
+  geom_point(alpha = 0.5) +
+  labs(
+    title = "Temperature plot",
+    x = "Min daily temp (Degree C",
+    y = "Max daily temp",
+    color = "Location",
+    caption = "Max vs. min dailyt temp in three locations; data from moaa"
+  ) +
+  scale_x_continuous(
+    breaks = c(-15, 0, 15),
+    labels = c("-15 C", "0", "15")
+  ) +
+  scale_y_continuous(
+    position = "right", 
+    trans = "sqrt"
+  )
+
+# you can also apply limits. example: "limits = c(#, #)"
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax, color = name)) +
+  geom_point(alpha = 0.5) +
+  labs(
+    title = "Temperature plot",
+    x = "Min daily temp (Degree C",
+    y = "Max daily temp",
+    color = "Location",
+    caption = "Max vs. min dailyt temp in three locations; data from moaa"
+  ) +
+  scale_x_continuous(
+    breaks = c(-15, 0, 15),
+    labels = c("-15 C", "0", "15")
+  ) +
+  scale_y_continuous(
+    position = "right", 
+    limits = c(0,30)
+  )
+```
+
+
+
+What about colors?
+
+```{r}
+
+# Using viridis package 
+
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax, color = name)) +
+  geom_point(alpha = 0.5) +
+  labs(
+    title = "Temperature plot",
+    x = "Min daily temp (Degree C",
+    y = "Max daily temp",
+    color = "Location",
+    caption = "Max vs. min dailyt temp in three locations; data from moaa"
+  ) +
+  scale_x_continuous(
+    breaks = c(-15, 0, 15),
+    labels = c("-15 C", "0", "15")
+  ) +
+  scale_y_continuous(
+    position = "right", 
+    trans = "sqrt"
+  ) + 
+  viridis::scale_color_viridis(discrete = TRUE) 
+```
+
