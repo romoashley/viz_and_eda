@@ -149,4 +149,73 @@ weather_df |>
 ```
 
 
+## Grouped mutate
+
+```{r}
+#calculate the mean for each name and add it as a column
+weather_df |> 
+  group_by(name) |> 
+  mutate(mean_tmax = mean(tmax, na.rm = TRUE))
+```
+
+
+```{r}
+#centering 
+weather_df |> 
+  group_by(name) |> 
+  mutate(
+    mean_tmax = mean(tmax, na.rm = TRUE),
+    centered_tmax = tmax - mean_tmax) |> 
+  ggplot(aes(x = date, y = centered_tmax, color = name)) +
+  geom_point()
+```
+
+
+```{r}
+#helfpul for ranking 
+
+#min_rank results in order from lowest to highest the rank of the variable you specified
+
+weather_df |> 
+  group_by(name, month) |> 
+  mutate(tmax_rank = min_rank(tmax)) |>  
+  filter(tmax_rank < 2)
+
+# can also order from highest to lowest rank by using "desc(variable) within min_rank()
+weather_df |> 
+  group_by(name, month) |> 
+  mutate(tmax_rank = min_rank(desc(tmax))) |>  
+  filter(tmax_rank < 2)
+```
+
+
+lags
+
+```{r}
+#lag(variable, # of rows back you want to collect info from)
+weather_df |> 
+  group_by(name) |> 
+  mutate(yesterday_tmax = lag(tmax,  3))
+
+# if you dont group and use lag, you can get nonsent output
+weather_df |> 
+  mutate(yesterday_tmax = lag(tmax))
+```
+
+interesting analyses
+
+```{r}
+# this code gives you the what is the day to day variation in temperature in these locations
+
+weather_df |> 
+  group_by(name) |> 
+  mutate(temp_change = tmax-log(tmax)) |> 
+  summarize(
+    sd_temp_change = sd(temp_change, na.rm = TRUE)
+  )
+```
+
+
+
+
 

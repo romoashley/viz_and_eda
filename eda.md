@@ -326,3 +326,168 @@ weather_df |>
 | 2022-10-01 |          17.43 |      29.22 |        11.88 |
 | 2022-11-01 |          14.02 |      27.96 |         2.14 |
 | 2022-12-01 |           6.76 |      27.35 |        -0.46 |
+
+## Grouped mutate
+
+``` r
+#calculate the mean for each name and add it as a column
+weather_df |> 
+  group_by(name) |> 
+  mutate(mean_tmax = mean(tmax, na.rm = TRUE))
+```
+
+    ## # A tibble: 2,190 × 8
+    ## # Groups:   name [3]
+    ##    name           id          date        prcp  tmax  tmin month      mean_tmax
+    ##    <chr>          <chr>       <date>     <dbl> <dbl> <dbl> <date>         <dbl>
+    ##  1 CentralPark_NY USW00094728 2021-01-01   157   4.4   0.6 2021-01-01      17.7
+    ##  2 CentralPark_NY USW00094728 2021-01-02    13  10.6   2.2 2021-01-01      17.7
+    ##  3 CentralPark_NY USW00094728 2021-01-03    56   3.3   1.1 2021-01-01      17.7
+    ##  4 CentralPark_NY USW00094728 2021-01-04     5   6.1   1.7 2021-01-01      17.7
+    ##  5 CentralPark_NY USW00094728 2021-01-05     0   5.6   2.2 2021-01-01      17.7
+    ##  6 CentralPark_NY USW00094728 2021-01-06     0   5     1.1 2021-01-01      17.7
+    ##  7 CentralPark_NY USW00094728 2021-01-07     0   5    -1   2021-01-01      17.7
+    ##  8 CentralPark_NY USW00094728 2021-01-08     0   2.8  -2.7 2021-01-01      17.7
+    ##  9 CentralPark_NY USW00094728 2021-01-09     0   2.8  -4.3 2021-01-01      17.7
+    ## 10 CentralPark_NY USW00094728 2021-01-10     0   5    -1.6 2021-01-01      17.7
+    ## # ℹ 2,180 more rows
+
+``` r
+#centering 
+weather_df |> 
+  group_by(name) |> 
+  mutate(
+    mean_tmax = mean(tmax, na.rm = TRUE),
+    centered_tmax = tmax - mean_tmax) |> 
+  ggplot(aes(x = date, y = centered_tmax, color = name)) +
+  geom_point()
+```
+
+    ## Warning: Removed 17 rows containing missing values (`geom_point()`).
+
+<img src="eda_files/figure-gfm/unnamed-chunk-14-1.png" width="90%" />
+
+``` r
+#helfpul for ranking 
+
+#min_rank results in order from lowest to highest the rank of the variable you specified
+
+weather_df |> 
+  group_by(name, month) |> 
+  mutate(tmax_rank = min_rank(tmax)) |>  
+  filter(tmax_rank < 2)
+```
+
+    ## # A tibble: 92 × 8
+    ## # Groups:   name, month [72]
+    ##    name           id          date        prcp  tmax  tmin month      tmax_rank
+    ##    <chr>          <chr>       <date>     <dbl> <dbl> <dbl> <date>         <int>
+    ##  1 CentralPark_NY USW00094728 2021-01-29     0  -3.8  -9.9 2021-01-01         1
+    ##  2 CentralPark_NY USW00094728 2021-02-08     0  -1.6  -8.2 2021-02-01         1
+    ##  3 CentralPark_NY USW00094728 2021-03-02     0   0.6  -6   2021-03-01         1
+    ##  4 CentralPark_NY USW00094728 2021-04-02     0   3.9  -2.1 2021-04-01         1
+    ##  5 CentralPark_NY USW00094728 2021-05-29   117  10.6   8.3 2021-05-01         1
+    ##  6 CentralPark_NY USW00094728 2021-05-30   226  10.6   8.3 2021-05-01         1
+    ##  7 CentralPark_NY USW00094728 2021-06-11     0  20.6  16.7 2021-06-01         1
+    ##  8 CentralPark_NY USW00094728 2021-06-12     0  20.6  16.7 2021-06-01         1
+    ##  9 CentralPark_NY USW00094728 2021-07-03    86  18.9  15   2021-07-01         1
+    ## 10 CentralPark_NY USW00094728 2021-08-04     0  24.4  19.4 2021-08-01         1
+    ## # ℹ 82 more rows
+
+``` r
+# can also order from highest to lowest rank by using "desc(variable) within min_rank()
+weather_df |> 
+  group_by(name, month) |> 
+  mutate(tmax_rank = min_rank(desc(tmax))) |>  
+  filter(tmax_rank < 2)
+```
+
+    ## # A tibble: 104 × 8
+    ## # Groups:   name, month [72]
+    ##    name           id          date        prcp  tmax  tmin month      tmax_rank
+    ##    <chr>          <chr>       <date>     <dbl> <dbl> <dbl> <date>         <int>
+    ##  1 CentralPark_NY USW00094728 2021-01-02    13  10.6   2.2 2021-01-01         1
+    ##  2 CentralPark_NY USW00094728 2021-02-24     0  12.2   3.9 2021-02-01         1
+    ##  3 CentralPark_NY USW00094728 2021-03-26    48  27.8  11.1 2021-03-01         1
+    ##  4 CentralPark_NY USW00094728 2021-04-28    13  29.4  11.1 2021-04-01         1
+    ##  5 CentralPark_NY USW00094728 2021-05-22     0  31.7  18.3 2021-05-01         1
+    ##  6 CentralPark_NY USW00094728 2021-06-30   165  36.7  22.8 2021-06-01         1
+    ##  7 CentralPark_NY USW00094728 2021-07-06   140  33.3  21.7 2021-07-01         1
+    ##  8 CentralPark_NY USW00094728 2021-08-13     0  34.4  25.6 2021-08-01         1
+    ##  9 CentralPark_NY USW00094728 2021-09-15     0  29.4  21.7 2021-09-01         1
+    ## 10 CentralPark_NY USW00094728 2021-10-15     0  26.1  17.2 2021-10-01         1
+    ## # ℹ 94 more rows
+
+lags
+
+``` r
+#lag(variable, # of rows back you want to collect info from)
+weather_df |> 
+  group_by(name) |> 
+  mutate(yesterday_tmax = lag(tmax,  3))
+```
+
+    ## # A tibble: 2,190 × 8
+    ## # Groups:   name [3]
+    ##    name           id      date        prcp  tmax  tmin month      yesterday_tmax
+    ##    <chr>          <chr>   <date>     <dbl> <dbl> <dbl> <date>              <dbl>
+    ##  1 CentralPark_NY USW000… 2021-01-01   157   4.4   0.6 2021-01-01           NA  
+    ##  2 CentralPark_NY USW000… 2021-01-02    13  10.6   2.2 2021-01-01           NA  
+    ##  3 CentralPark_NY USW000… 2021-01-03    56   3.3   1.1 2021-01-01           NA  
+    ##  4 CentralPark_NY USW000… 2021-01-04     5   6.1   1.7 2021-01-01            4.4
+    ##  5 CentralPark_NY USW000… 2021-01-05     0   5.6   2.2 2021-01-01           10.6
+    ##  6 CentralPark_NY USW000… 2021-01-06     0   5     1.1 2021-01-01            3.3
+    ##  7 CentralPark_NY USW000… 2021-01-07     0   5    -1   2021-01-01            6.1
+    ##  8 CentralPark_NY USW000… 2021-01-08     0   2.8  -2.7 2021-01-01            5.6
+    ##  9 CentralPark_NY USW000… 2021-01-09     0   2.8  -4.3 2021-01-01            5  
+    ## 10 CentralPark_NY USW000… 2021-01-10     0   5    -1.6 2021-01-01            5  
+    ## # ℹ 2,180 more rows
+
+``` r
+# if you dont group and use lag, you can get nonsent output
+weather_df |> 
+  mutate(yesterday_tmax = lag(tmax))
+```
+
+    ## # A tibble: 2,190 × 8
+    ##    name           id      date        prcp  tmax  tmin month      yesterday_tmax
+    ##    <chr>          <chr>   <date>     <dbl> <dbl> <dbl> <date>              <dbl>
+    ##  1 CentralPark_NY USW000… 2021-01-01   157   4.4   0.6 2021-01-01           NA  
+    ##  2 CentralPark_NY USW000… 2021-01-02    13  10.6   2.2 2021-01-01            4.4
+    ##  3 CentralPark_NY USW000… 2021-01-03    56   3.3   1.1 2021-01-01           10.6
+    ##  4 CentralPark_NY USW000… 2021-01-04     5   6.1   1.7 2021-01-01            3.3
+    ##  5 CentralPark_NY USW000… 2021-01-05     0   5.6   2.2 2021-01-01            6.1
+    ##  6 CentralPark_NY USW000… 2021-01-06     0   5     1.1 2021-01-01            5.6
+    ##  7 CentralPark_NY USW000… 2021-01-07     0   5    -1   2021-01-01            5  
+    ##  8 CentralPark_NY USW000… 2021-01-08     0   2.8  -2.7 2021-01-01            5  
+    ##  9 CentralPark_NY USW000… 2021-01-09     0   2.8  -4.3 2021-01-01            2.8
+    ## 10 CentralPark_NY USW000… 2021-01-10     0   5    -1.6 2021-01-01            2.8
+    ## # ℹ 2,180 more rows
+
+interesting analyses
+
+``` r
+# this code gives you the what is the day to day variation in temperature in these locations
+
+weather_df |> 
+  group_by(name) |> 
+  mutate(temp_change = tmax-log(tmax)) |> 
+  summarize(
+    sd_temp_change = sd(temp_change, na.rm = TRUE)
+  )
+```
+
+    ## Warning: There were 2 warnings in `mutate()`.
+    ## The first warning was:
+    ## ℹ In argument: `temp_change = tmax - log(tmax)`.
+    ## ℹ In group 1: `name = "CentralPark_NY"`.
+    ## Caused by warning in `log()`:
+    ## ! NaNs produced
+    ## ℹ Run `dplyr::last_dplyr_warnings()` to see the 1 remaining warning.
+
+    ## # A tibble: 3 × 2
+    ##   name           sd_temp_change
+    ##   <chr>                   <dbl>
+    ## 1 CentralPark_NY         NaN   
+    ## 2 Molokai_HI               1.73
+    ## 3 Waterhole_WA           NaN
