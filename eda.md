@@ -154,3 +154,175 @@ weather_df |>
     ##  9 CentralPark_NY 2021-09-01    30
     ## 10 CentralPark_NY 2021-10-01    31
     ## # ℹ 62 more rows
+
+``` r
+weather_df |> 
+  group_by(month) |> 
+  summarize(n_obs = n())
+```
+
+    ## # A tibble: 24 × 2
+    ##    month      n_obs
+    ##    <date>     <int>
+    ##  1 2021-01-01    93
+    ##  2 2021-02-01    84
+    ##  3 2021-03-01    93
+    ##  4 2021-04-01    90
+    ##  5 2021-05-01    93
+    ##  6 2021-06-01    90
+    ##  7 2021-07-01    93
+    ##  8 2021-08-01    93
+    ##  9 2021-09-01    90
+    ## 10 2021-10-01    93
+    ## # ℹ 14 more rows
+
+``` r
+# this output shows you have 24 months and in the 24 months you see the month in the row 1 a total of 93 times
+```
+
+``` r
+#count the number of names and can rename the column
+weather_df |> 
+  count(name, name = "n_obs")
+```
+
+    ## # A tibble: 3 × 2
+    ##   name           n_obs
+    ##   <chr>          <int>
+    ## 1 CentralPark_NY   730
+    ## 2 Molokai_HI       730
+    ## 3 Waterhole_WA     730
+
+``` r
+#de-tidying data to allow the table to be more readable
+weather_df |> 
+  count(name, month) |> 
+  pivot_wider(
+    names_from = name, 
+    values_from = n
+  )
+```
+
+    ## # A tibble: 24 × 4
+    ##    month      CentralPark_NY Molokai_HI Waterhole_WA
+    ##    <date>              <int>      <int>        <int>
+    ##  1 2021-01-01             31         31           31
+    ##  2 2021-02-01             28         28           28
+    ##  3 2021-03-01             31         31           31
+    ##  4 2021-04-01             30         30           30
+    ##  5 2021-05-01             31         31           31
+    ##  6 2021-06-01             30         30           30
+    ##  7 2021-07-01             31         31           31
+    ##  8 2021-08-01             31         31           31
+    ##  9 2021-09-01             30         30           30
+    ## 10 2021-10-01             31         31           31
+    ## # ℹ 14 more rows
+
+## General summaries
+
+``` r
+# takimg the average of each name
+# na.rm has a default of FALSE, but you can set it to TRUE, it will take the averages and remove each of the missing values
+weather_df |> 
+  group_by(name) |> 
+  summarize(
+    mean_tmax = mean(tmax, na.rm = TRUE )
+  )
+```
+
+    ## # A tibble: 3 × 2
+    ##   name           mean_tmax
+    ##   <chr>              <dbl>
+    ## 1 CentralPark_NY     17.7 
+    ## 2 Molokai_HI         28.3 
+    ## 3 Waterhole_WA        7.38
+
+``` r
+#can also group by more than one variable
+weather_df |> 
+  group_by(name, month) |> 
+  summarize(
+    mean_tmax = mean(tmax, na.rm = TRUE ),
+    median_tmax = median(tmax, na.rm = TRUE), 
+    sd_tmax = sd(tmax, na.rm = TRUE)
+  )
+```
+
+    ## `summarise()` has grouped output by 'name'. You can override using the
+    ## `.groups` argument.
+
+    ## # A tibble: 72 × 5
+    ## # Groups:   name [3]
+    ##    name           month      mean_tmax median_tmax sd_tmax
+    ##    <chr>          <date>         <dbl>       <dbl>   <dbl>
+    ##  1 CentralPark_NY 2021-01-01      4.27         5      3.34
+    ##  2 CentralPark_NY 2021-02-01      3.87         2.8    3.99
+    ##  3 CentralPark_NY 2021-03-01     12.3         12.2    6.91
+    ##  4 CentralPark_NY 2021-04-01     17.6         18.0    5.26
+    ##  5 CentralPark_NY 2021-05-01     22.1         22.2    5.63
+    ##  6 CentralPark_NY 2021-06-01     28.1         27.8    4.32
+    ##  7 CentralPark_NY 2021-07-01     28.4         28.3    3.17
+    ##  8 CentralPark_NY 2021-08-01     28.8         28.3    2.95
+    ##  9 CentralPark_NY 2021-09-01     24.8         24.4    2.52
+    ## 10 CentralPark_NY 2021-10-01     19.9         20.6    3.66
+    ## # ℹ 62 more rows
+
+``` r
+# plot that shows the average montly temp in each of the stations
+weather_df |> 
+  group_by(name, month) |> 
+  summarize(mean_tmax = mean(tmax, na.rm = TRUE)) |> 
+  ggplot(aes(x = month, y = mean_tmax, color = name)) +
+  geom_point() +
+  geom_line()
+```
+
+    ## `summarise()` has grouped output by 'name'. You can override using the
+    ## `.groups` argument.
+
+<img src="eda_files/figure-gfm/unnamed-chunk-11-1.png" width="90%" />
+
+``` r
+#using pivot wider 
+#knitr::kable() it structures the data so it looks like the syntax you need for a r markdown table
+#digits = 2 rounds the numbers to 2 decimals
+
+weather_df |> 
+  group_by(name, month) |> 
+  summarize(mean_tmax = mean(tmax, na.rm = TRUE)) |> 
+  pivot_wider(
+    names_from = name, 
+    values_from = mean_tmax
+  ) |> 
+  knitr::kable(digits = 2)
+```
+
+    ## `summarise()` has grouped output by 'name'. You can override using the
+    ## `.groups` argument.
+
+| month      | CentralPark_NY | Molokai_HI | Waterhole_WA |
+|:-----------|---------------:|-----------:|-------------:|
+| 2021-01-01 |           4.27 |      27.62 |         0.80 |
+| 2021-02-01 |           3.87 |      26.37 |        -0.79 |
+| 2021-03-01 |          12.29 |      25.86 |         2.62 |
+| 2021-04-01 |          17.61 |      26.57 |         6.10 |
+| 2021-05-01 |          22.08 |      28.58 |         8.20 |
+| 2021-06-01 |          28.06 |      29.59 |        15.25 |
+| 2021-07-01 |          28.35 |      29.99 |        17.34 |
+| 2021-08-01 |          28.81 |      29.52 |        17.15 |
+| 2021-09-01 |          24.79 |      29.67 |        12.65 |
+| 2021-10-01 |          19.93 |      29.13 |         5.48 |
+| 2021-11-01 |          11.54 |      28.85 |         3.53 |
+| 2021-12-01 |           9.59 |      26.19 |        -2.10 |
+| 2022-01-01 |           2.85 |      26.61 |         3.61 |
+| 2022-02-01 |           7.65 |      26.83 |         2.99 |
+| 2022-03-01 |          11.99 |      27.73 |         3.42 |
+| 2022-04-01 |          15.81 |      27.72 |         2.46 |
+| 2022-05-01 |          22.25 |      28.28 |         5.81 |
+| 2022-06-01 |          26.09 |      29.16 |        11.13 |
+| 2022-07-01 |          30.72 |      29.53 |        15.86 |
+| 2022-08-01 |          30.50 |      30.70 |        18.83 |
+| 2022-09-01 |          24.92 |      30.41 |        15.21 |
+| 2022-10-01 |          17.43 |      29.22 |        11.88 |
+| 2022-11-01 |          14.02 |      27.96 |         2.14 |
+| 2022-12-01 |           6.76 |      27.35 |        -0.46 |

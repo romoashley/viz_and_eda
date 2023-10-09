@@ -73,10 +73,80 @@ weather_df |>
 weather_df |> 
   group_by(name, month) |> 
   summarize(n_obs = n())
+
+weather_df |> 
+  group_by(month) |> 
+  summarize(n_obs = n())
+# this output shows you have 24 months and in the 24 months you see the month in the row 1 a total of 93 times
+```
+
+
+```{r}
+#count the number of names and can rename the column
+weather_df |> 
+  count(name, name = "n_obs")
+```
+
+
+```{r}
+#de-tidying data to allow the table to be more readable
+weather_df |> 
+  count(name, month) |> 
+  pivot_wider(
+    names_from = name, 
+    values_from = n
+  )
+```
+
+
+## General summaries
+
+```{r}
+# takimg the average of each name
+# na.rm has a default of FALSE, but you can set it to TRUE, it will take the averages and remove each of the missing values
+weather_df |> 
+  group_by(name) |> 
+  summarize(
+    mean_tmax = mean(tmax, na.rm = TRUE )
+  )
+
+#can also group by more than one variable
+weather_df |> 
+  group_by(name, month) |> 
+  summarize(
+    mean_tmax = mean(tmax, na.rm = TRUE ),
+    median_tmax = median(tmax, na.rm = TRUE), 
+    sd_tmax = sd(tmax, na.rm = TRUE)
+  )
+```
+
+
+```{r}
+# plot that shows the average montly temp in each of the stations
+weather_df |> 
+  group_by(name, month) |> 
+  summarize(mean_tmax = mean(tmax, na.rm = TRUE)) |> 
+  ggplot(aes(x = month, y = mean_tmax, color = name)) +
+  geom_point() +
+  geom_line()
 ```
 
 
 
+```{r}
+#using pivot wider 
+#knitr::kable() it structures the data so it looks like the syntax you need for a r markdown table
+#digits = 2 rounds the numbers to 2 decimals
+
+weather_df |> 
+  group_by(name, month) |> 
+  summarize(mean_tmax = mean(tmax, na.rm = TRUE)) |> 
+  pivot_wider(
+    names_from = name, 
+    values_from = mean_tmax
+  ) |> 
+  knitr::kable(digits = 2)
+```
 
 
 
